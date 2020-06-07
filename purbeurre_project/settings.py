@@ -25,16 +25,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.environ.get('ENV') == 'PRODUCTION':
-    DEBUG = False
-else:
-    DEBUG = True
+DEBUG = False if os.environ.get('ENV', 'DEVELOPMENT') == 'PRODUCTION' else True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'butter-compare.herokuapp.com']
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'butter-compare.herokuapp.com']
 
 # Application definition
-
 INSTALLED_APPS = [
     'pages.apps.PagesConfig',
     'account.apps.AccountConfig',
@@ -80,16 +75,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'purbeurre_project.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -127,61 +112,32 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 
-if os.environ.get('ENV') == 'PRODUCTION':
-    # Static files settings
-    PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-    STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
-    # Extra places for collectstatic to find static files.
-    STATICFILES_DIRS = (
-        os.path.join(BASE_DIR, 'static/dist'),
-    )
-
-    # Simplified static file serving.
-    # https://warehouse.python.org/project/whitenoise/
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-
-    # LOGGING For Heroku 
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': os.getenv('DJANGO_LOG_LEVEL', 'ERROR'),
-            },
-        },
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'purbeurre',
+        'USER': 'vft',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '5432',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'purbeurre',
-            'USER': 'vft',
-            'PASSWORD': '',
-            'HOST': '',
-            'PORT': '5432',
-        }
-    }
-    STATIC_URL = '/static/dist/'
+}
 
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, "static/dist/"),
-        # '/var/www/static/',
-    ]
+# Static files settings
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/dist/'
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static/dist/"),
+]
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # ACCOUNT MANAGEMENT
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URL = '/'
 
-if os.environ.get('ENV') == 'PRODUCTION':
-    # Configure Django App for Heroku.
-    import django_heroku
-    django_heroku.settings(locals())
+django_heroku.settings(locals())
