@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'pages.apps.PagesConfig',
     'account.apps.AccountConfig',
     'products.apps.ProductsConfig',
-    'polls.apps.PollsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -126,4 +125,5 @@ STATICFILES_DIRS = [
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URL = '/'
 
-django_heroku.settings(locals())
+if os.environ.get('ENV', 'DEVELOPMENT') == 'PRODUCTION':
+    django_heroku.settings(locals()) 

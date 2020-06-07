@@ -5,6 +5,7 @@ from django.utils.text import slugify
 
 class ProductManager(models.Manager):
     def similar(self, name):
+        # return self.filter(name__contains=name)
         return self.filter(
             models.Q(name__contains=name) |
             models.Q(category__name__contains=name)
@@ -28,19 +29,17 @@ class Category(models.Model):
     '''
     id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(
-        verbose_name="Category name", max_length=100, unique=True)
-    slug = models.SlugField(
-        max_length=100, unique=True, editable=False, null=True)
+        verbose_name="Category name", null=True, max_length=100, unique=True)
 
     class Meta:
         verbose_name = "Catégorie"
 
     def __str__(self):
-        return self.name
+        return self.id
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)[:50] + '-' + str(self.id)
-        super(Category, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.slug = slugify(self.name)[:50] + '-' + str(self.id)
+    #     super(Category, self).save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -66,11 +65,9 @@ class Product(models.Model):
     salt = models.DecimalField(
         "Salt in 100g", max_digits=5, decimal_places=2, default=0)
 
-    category = models.ForeignKey(
+    category = models.ManyToManyField(
         Category,
         related_name="category",
-        on_delete=models.CASCADE,
-        null=True,
         verbose_name="Catégorie")
 
     class Meta:

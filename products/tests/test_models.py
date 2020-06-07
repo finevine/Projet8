@@ -21,6 +21,7 @@ class TestProductsModels(TestCase):
             name="Cocu colu",
             code="789")
         cls.cat = Category.objects.create(
+            id="Test:Category",
             name="Test Category"
         )
         # Or we can write : self.product1 = Product.object
@@ -70,4 +71,4 @@ class TestProductsModels(TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.prod1), "Coco colo")
-        self.assertEqual(str(self.cat), "Test Category")
+        self.assertEqual(str(self.cat), "Test:Category")

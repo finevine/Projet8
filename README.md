@@ -17,11 +17,7 @@ Requirements are given in a pdf. The site should look like that:
 
 `Node.js` is installed to customize SASS file of the Bootstrap theme. Then [Bootstrap variables](https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/_variables.scss) are customized.
 
-creative.min.css is then compiled using `npx gulp`
-
-```bash
-pip install foobar
-```
+creative.min.css is then compiled using `npm start`
 
 ## Tests
 

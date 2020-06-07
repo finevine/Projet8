@@ -6,9 +6,18 @@ from django.core.management import call_command
 from .mock import MOCK_CATEGORIES, MOCK_OPENFF_REQUEST
 
 
+class MockOFF():
+    '''class to mock Google Map search'''
+    def __init__(self, url, params=None, headers=None, **kwargs):
+        pass
+
+    @staticmethod
+    def json():
+        return MOCK_OPENFF_REQUEST
+
 class TestInitDB(TestCase):
 
-    @patch('products.management.commands.init_db.requests.get')
+    @patch('products.management.commands.init_db.requests.get', MockOFF)
     # replace open by mock_categories
     @patch('builtins.open', mock_open(read_data=MOCK_CATEGORIES))
     def test_init_db(self, mock_request):

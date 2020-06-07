@@ -28,15 +28,15 @@ class TestSaveDelete(TestCase):
     @classmethod  # <- setUpTestData must be a class method
     def setUpTestData(cls):
         # create one category for all products created
-        Category.objects.create(id="fruits:fr", name="Fruits frais")
+        Category.objects.create(id="fruits:fr",
+            name="Fruits")
         cls.category = Category.objects.get(id="fruits:fr")
         # create 2 products
         for i in range(2):
             Product.objects.create(
                 name="prod"+str(i),
                 code=str(i),
-                nutritionGrade='b',
-                category=cls.category)
+                nutritionGrade='b').category.set([cls.category])
         # create a user just for this test
         cls.user1 = User.objects.create_user(
             'user1name',
@@ -99,7 +99,14 @@ class TestSearch(TestCase):
     @patch('products.models.ProductManager.similar')
     def test_ProductsView(self, mock_similar):
         mock_category = Category(id="fruits:fr", name="Fruits")
-        mock_similar.return_value = [Product(code='1234', name='toto', category=mock_category)]
+        prodtoto = Product(code='1234', name='toto')
+        prodtoto.category.set([mock_category])
+        prodtoto.save()
+        mock_category.save()
+        mock_similar.return_value = [prodtoto]
+
+        import pdb
+        pdb.set_trace()
         url = reverse('products:search')
         response = self.client.get(url, data={'q': 'toto'})
         self.assertContains(response, 'Toto')
@@ -157,23 +164,20 @@ class TestCompare(TestCase):
     @classmethod  # <- setUpTestData must be a class method
     def setUpTestData(cls):
         # create one category for all products created
-        Category.objects.create(
-            id="fruits:fr",
-            name="Fruits frais")
+        Category.objects.create(id="fruits:fr",
+            name="Fruits")
         cls.category = Category.objects.get(id="fruits:fr")
         # create 15 products
         for i in range(15):
             Product.objects.create(
                 name="prod"+str(i),
                 code=str(i),
-                nutritionGrade='b',
-                category=cls.category)
+                nutritionGrade='b').category.set([cls.category])
         # create one unhealthy product to check filtering
         Product.objects.create(
                 name="lastprod",
                 code='67890',
-                nutritionGrade='e',
-                category=cls.category)
+                nutritionGrade='e').category.set([cls.category])
         cls.prod1 = Product.objects.get(code=1)
 
 
@@ -220,8 +224,10 @@ class TestCompare(TestCase):
 class TestDetail(TestCase):
 
     def test_ProductDetailView2(self):
-        mock_category = Category(id="fruits:fr", name="Fruits")
-        mock_product = Product(code='5', name='prod5', category=mock_category)
+        mock_category = Category(id="fruits:fr",
+            name="Fruits")
+        mock_product = Product(code='5', name='prod5')
+        mock_product.category.set([mock_category])
 
         # Patch genericView to return only one object
         with patch.object(
