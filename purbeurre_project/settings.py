@@ -134,8 +134,7 @@ if os.environ.get('ENV') == 'PRODUCTION':
     STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
     # Extra places for collectstatic to find static files.
     STATICFILES_DIRS = (
-        os.path.join(BASE_DIR, 'templates/static/dist'),
-        os.path.join(BASE_DIR, "static"),
+        os.path.join(BASE_DIR, 'static/dist'),
     )
 
     # Simplified static file serving.
@@ -170,11 +169,10 @@ else:
             'PORT': '5432',
         }
     }
-    STATIC_URL = '/templates/static/dist/'
+    STATIC_URL = '/static/dist/'
 
     STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, "templates/static/dist/"),
-        os.path.join(BASE_DIR, "static"),
+        os.path.join(BASE_DIR, "static/dist/"),
         # '/var/www/static/',
     ]
 
