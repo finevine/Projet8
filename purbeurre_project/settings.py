@@ -126,4 +126,5 @@ STATICFILES_DIRS = [
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URL = '/'
 
-django_heroku.settings(locals())
+if os.environ.get('ENV', 'DEVELOPMENT') == 'PRODUCTION':
+    django_heroku.settings(locals())

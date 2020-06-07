@@ -61,7 +61,7 @@ class Command(BaseCommand):
                                 "satFat": satFat,
                                 "salt": salt,
                                 "fat": fat,
-                                "category": category_DB
+                                "category": category_DB,
                             },
                         )
                         count += 1
