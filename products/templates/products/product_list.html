@@ -18,7 +18,7 @@
                 <div class="col-xs-12 col-sm-4 col-md-4 gutter-xs-xs gutter-margin-xs-xs mb-3">
                     <div class="card" style="">
                         {# <a href="{% url 'products:detail' product.code %}"> #}
-                        <a href="{% url 'products:compare' product.category.id %}?code={{ product.code }}">
+                        <a href="{% url 'products:compare' product.code %}">
                                 {% if product.image %}
                         <img src="{{ product.image }}" class="card-img-top product-thumb" alt="">
                         {% else %}

@@ -32,11 +32,11 @@ class TestSaveDelete(TestCase):
         cls.category = Category.objects.get(id="fruits:fr")
         # create 2 products
         for i in range(2):
-            Product.objects.create(
+            prod = Product.objects.create(
                 name="prod"+str(i),
                 code=str(i),
-                nutritionGrade='b',
-                category=cls.category)
+                nutritionGrade='b')
+            prod.category.add(cls.category)
         # create a user just for this test
         cls.user1 = User.objects.create_user(
             'user1name',
@@ -99,7 +99,7 @@ class TestSearch(TestCase):
     @patch('products.models.ProductManager.similar')
     def test_ProductsView(self, mock_similar):
         mock_category = Category(id="fruits:fr", name="Fruits")
-        mock_similar.return_value = [Product(code='1234', name='toto', category=mock_category)]
+        mock_similar.return_value = [Product(code='1234', name='toto')]
         url = reverse('products:search')
         response = self.client.get(url, data={'q': 'toto'})
         self.assertContains(response, 'Toto')
@@ -163,27 +163,25 @@ class TestCompare(TestCase):
         cls.category = Category.objects.get(id="fruits:fr")
         # create 15 products
         for i in range(15):
-            Product.objects.create(
+            prod = Product.objects.create(
                 name="prod"+str(i),
                 code=str(i),
-                nutritionGrade='b',
-                category=cls.category)
+                nutritionGrade='b')
+            prod.category.add(cls.category)
         # create one unhealthy product to check filtering
-        Product.objects.create(
+        prod = Product.objects.create(
                 name="lastprod",
                 code='67890',
-                nutritionGrade='e',
-                category=cls.category)
+                nutritionGrade='e')
+        prod.category.add(cls.category)
         cls.prod1 = Product.objects.get(code=1)
 
 
     def test_compare_resolves(self):
         url = reverse(
             'products:compare',
-            args=[self.category.id])
-        response = self.client.get(
-            url,
-            data={'code': self.prod1.code})
+            args=[self.prod1.code])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         # Test if response contains product searched (capitalized)
         self.assertContains(response, 'Prod1')
@@ -191,10 +189,8 @@ class TestCompare(TestCase):
     def test_pagination_is_twelve(self):
         url = reverse(
             'products:compare',
-            args=[self.category.id])
-        response = self.client.get(
-            url,
-            data={'code': self.prod1.code})
+            args=[self.prod1.code])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('is_paginated' in response.context)
         self.assertTrue(response.context['is_paginated'])
@@ -204,10 +200,10 @@ class TestCompare(TestCase):
         '''
         Get second page and confirm it has exactly remaining (15-1-12=2) items
         '''
-        url = reverse('products:compare', args=[self.category.id])
+        url = reverse('products:compare', args=[self.prod1.code])
         response = self.client.get(
             url,
-            data={'code': self.prod1.code, 'page': 2})
+            data={'page': 2})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('is_paginated' in response.context)
         self.assertTrue(response.context['is_paginated'])
@@ -219,9 +215,12 @@ class TestCompare(TestCase):
 #########################
 class TestDetail(TestCase):
 
-    def test_ProductDetailView2(self):
-        mock_category = Category(id="fruits:fr", name="Fruits")
-        mock_product = Product(code='5', name='prod5', category=mock_category)
+    def test_ProductDetailView(self):
+        mock_category = Category.objects.create(id="fruits:fr", name="Fruits")
+        mock_product = Product(code='5', name='prod5')
+        mock_category.save()
+        mock_product.save()
+        mock_product.category.add(mock_category)
 
         # Patch genericView to return only one object
         with patch.object(

@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'pages.apps.PagesConfig',
     'account.apps.AccountConfig',
     'products.apps.ProductsConfig',
-    'polls.apps.PollsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

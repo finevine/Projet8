@@ -1,22 +1,23 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from itertools import chain
 
 
 class ProductManager(models.Manager):
     def similar(self, name):
-        return self.filter(
-            models.Q(name__contains=name) |
-            models.Q(category__name__contains=name)
-        )
+        return (
+            Product.objects.filter(name__contains=name) |
+            Product.objects.filter(category__name__contains=name)
+            )
 
     def better(self, product_to_replace):
-        # Find products from the same category ...
+        # Find products from the same categories ...
         products = Product.objects.filter(
-            category__name=product_to_replace.category)
+            category__id__in=product_to_replace.category.values_list('id'))
         # ... differents from product_to_replace ...
         products = products.exclude(code=product_to_replace.code)
-        # ... have a >= nutritionGrade :
+        # ... have a nutritionGrade >= nutritionGradetoreplace :
         return products.filter(
             nutritionGrade__lte=product_to_replace.nutritionGrade
             ).order_by('nutritionGrade')
@@ -28,15 +29,15 @@ class Category(models.Model):
     '''
     id = models.CharField(max_length=100, primary_key=True)
     name = models.CharField(
-        verbose_name="Category name", max_length=100, unique=True)
+        verbose_name="Category name", max_length=400, unique=False)
     slug = models.SlugField(
-        max_length=100, unique=True, editable=False, null=True)
+        max_length=151, unique=True, editable=False, null=True)
 
     class Meta:
         verbose_name = "Catégorie"
 
     def __str__(self):
-        return self.name
+        return self.id
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)[:50] + '-' + str(self.id)
@@ -66,11 +67,9 @@ class Product(models.Model):
     salt = models.DecimalField(
         "Salt in 100g", max_digits=5, decimal_places=2, default=0)
 
-    category = models.ForeignKey(
+    category = models.ManyToManyField(
         Category,
         related_name="category",
-        on_delete=models.CASCADE,
-        null=True,
         verbose_name="Catégorie")
 
     class Meta:
@@ -81,7 +80,7 @@ class Product(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)[:50] + '-' + self.code
+        self.slug = slugify(self.name)[:50] + '-' + str(self.code)
         super(Product, self).save(*args, **kwargs)
 
 

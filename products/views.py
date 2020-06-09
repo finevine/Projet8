@@ -85,8 +85,8 @@ class CompareView(generic.ListView):
     template_name = 'products/compare_list.html'
 
     def get_queryset(self):
-        self.product_to_replace = Product.objects.get(
-            code=self.request.GET.get('code'))
+
+        self.product_to_replace = Product.objects.get(code=self.kwargs['pk'])
         return Product.objects.better(self.product_to_replace)
 
     def get_context_data(self, **kwargs):
@@ -97,13 +97,13 @@ class CompareView(generic.ListView):
         context['product_to_replace'] = self.product_to_replace
         context['headerImg'] = self.product_to_replace.image
 
-        # From products of the same category ...
-        products = Product.objects.filter(
-            category__name=self.product_to_replace.category)
+        # # From products of the same category ...
+        # products = Product.objects.filter(
+        #     category__name=self.product_to_replace.category)
         # ... check if they are already saved by the user :
         if self.request.user.is_authenticated:
             context['in_fav'] = [
-                prod.code for prod in products
+                prod.code for prod in self.get_queryset()
                 if Favourite.objects.filter(
                     healthy_product=prod.code,
                     unhealthy_product=self.product_to_replace.code,
