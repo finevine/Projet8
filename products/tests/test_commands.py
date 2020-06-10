@@ -1,3 +1,5 @@
+import os
+from json import load
 from unittest.mock import patch, mock_open
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -19,12 +21,13 @@ class TestInitDB(TestCase):
         # check only 2 products are saved :
         self.assertEquals(Product.objects.all().count(), 3)
         # water was in the set :
+        eau_de_source = Product.objects.get(code=3274080005003)
         self.assertEquals(
-            Product.objects.get(code=3274080005003).name,
+            eau_de_source.name,
             "Eau de source")
 
         self.assertEquals(
-            Product.objects.get(code=3274080005003).compared_to_category.id,
+            eau_de_source.compared_to_category.id,
             "en:unsweetened-beverages")
         
         # test the manytomanyfield is used well
@@ -34,8 +37,11 @@ class TestInitDB(TestCase):
         self.assertCountEqual(
             [m.id for m in mock_categories],
             water_cat)
+        self.assertListEqual([cat.id for cat in eau_de_source.category.all()],
+            ["en:beverages", "en:waters", "en:spring-waters", "en:unsweetened-beverages"]
+        )
 
-class TestNutella(TestCase):
+class TestDoublons(TestCase):
 
     @patch('products.management.commands.init_db.requests.get')
     def test_init_nutella(self, mock_request):
@@ -45,6 +51,19 @@ class TestNutella(TestCase):
         nutella = Product.objects.get(code=3017620422003)
         self.assertEquals(nutella.name, "Nutella")
         self.assertFalse(Product.objects.filter(name="Nutella doublon").exists())
+
+    @patch('products.management.commands.init_db.requests.get')
+    def test_init_real_off(self, mock_request):
+        # replace json by a real mock openff request mocked
+        with open(
+                os.path.join(
+                    os.path.dirname(__file__),'mock_off_real.json'), 'r') as json_file:
+            # load a json and get products
+            OFF_PRODUCTS = load(json_file)
+        mock_request.return_value.json.return_value = OFF_PRODUCTS
+        call_command('init_db')
+        nutella_biscuits = Product.objects.get(code=8000500310427)
+        self.assertEquals(Product.objects.filter(code=8000500310427).count(), 1)
 
 
 class TestCleanDB(TestCase):

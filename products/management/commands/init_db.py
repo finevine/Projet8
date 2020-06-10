@@ -22,7 +22,6 @@ class Command(BaseCommand):
             "sort_by": "unique_scans_n",
             "page_size": 1000,
             "page": page,
-            "action": "process",
             "json": 1,
         }
         req = requests.get(
@@ -48,7 +47,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = 0
         # Open json of all categories
-        with open(os.path.join(os.path.dirname(__file__), "categories_cleaned.json"), 'r') as json_file:
+        with open(
+            os.path.join(
+                os.path.dirname(__file__),
+                "categories_cleaned.json"), 'r') as json_file:
             category_names = load(json_file)
 
         for page in range(1, 6):
@@ -58,10 +60,11 @@ class Command(BaseCommand):
             products = self.get_products(page)
 
             for product in products:
+                code_to_store=int(product["code"])
                 # limit to 5000 products (Heroku_db < 10000 rows)
                 if count >= 6000:
                     break
-                if not Product.objects.filter(code=product["code"]).exists():
+                if not Product.objects.filter(code=code_to_store).exists():
                     # Assign attributes to product
                     sugar = product["nutriments"].get("sugars_100g", 0)
                     satFat = product["nutriments"].get("saturated-fat_100g", 0)
@@ -70,10 +73,11 @@ class Command(BaseCommand):
 
                     # If product has nutritiongrade
                     if product.get("nutriscore_grade"):
+
                         product_DB, created = Product.objects.get_or_create(
-                                code=int(product["code"]),
+                                code=code_to_store,
                                 defaults={
-                                    "code": product["code"],
+                                    "code": code_to_store,
                                     "name": product.get("product_name", product.get("product_name_fr")),
                                     "nutritionGrade": product.get("nutriscore_grade"),
                                     "image": product.get(
@@ -99,11 +103,11 @@ class Command(BaseCommand):
 
                             # assign product 'compared_to_category' attribute
                             try:
-                                product_DB.compared_to_category = Category.objects.get(
-                                        id=product.get("compared_to_category")
-                                    )
+                                category_to_compare = Category.objects.get(
+                                        id=product.get("compared_to_category"))
+                                product_DB.compared_to_category=category_to_compare
                                 product_DB.save()
                             except exceptions.ObjectDoesNotExist:
-                                product_DB.compared_to_category = None
+                                product_DB.compared_to_category=None
                                 product_DB.save()
                             count += 1
