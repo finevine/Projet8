@@ -35,6 +35,8 @@ class Command(BaseCommand):
         return req_output["products"]
 
     def created_category(self, category, category_names):
+        '''category (string)
+        category_names (dict)'''
         category_DB, created = Category.objects.get_or_create(
             id=category,
             defaults={
@@ -50,6 +52,7 @@ class Command(BaseCommand):
             category_names = load(json_file)
 
         for page in range(1, 6):
+            print('page '+ str(page))
             if count >= 6000:
                 break
             products = self.get_products(page)
@@ -58,47 +61,49 @@ class Command(BaseCommand):
                 # limit to 5000 products (Heroku_db < 10000 rows)
                 if count >= 6000:
                     break
-                # Assign attributes to product
-                sugar = product["nutriments"].get("sugars_100g", 0)
-                satFat = product["nutriments"].get("saturated-fat_100g", 0)
-                salt = product["nutriments"].get("salt_100g", 0)
-                fat = product["nutriments"].get("fat_100g", 0)
-                # If product has 100g composition
-                if product.get("nutriscore_grade"):
-                    product_DB, created = Product.objects.get_or_create(
-                            code=int(product["code"]),
-                            defaults={
-                                "code": product["code"],
-                                "name": product.get("product_name", product.get("product_name_fr")),
-                                "nutritionGrade": product.get("nutriscore_grade"),
-                                "image": product.get(
-                                    "selected_images", {}).get(
-                                        "front", {}).get(
-                                            "display", {}).get(
-                                                "fr"),
-                                "sugar": sugar,
-                                "satFat": satFat,
-                                "salt": salt,
-                                "fat": fat,
-                            },
-                        )
+                if not Product.objects.filter(code=product["code"]).exists():
+                    # Assign attributes to product
+                    sugar = product["nutriments"].get("sugars_100g", 0)
+                    satFat = product["nutriments"].get("saturated-fat_100g", 0)
+                    salt = product["nutriments"].get("salt_100g", 0)
+                    fat = product["nutriments"].get("fat_100g", 0)
 
-                    if created:
-                        categories = product.get('categories_tags', [])
-                        for category in categories:
-                            # create category in DB :
-                            category_DB = self.created_category(
-                                category, category_names)
-                            # add to product :
-                            product_DB.category.add(category_DB)
+                    # If product has nutritiongrade
+                    if product.get("nutriscore_grade"):
+                        product_DB, created = Product.objects.get_or_create(
+                                code=int(product["code"]),
+                                defaults={
+                                    "code": product["code"],
+                                    "name": product.get("product_name", product.get("product_name_fr")),
+                                    "nutritionGrade": product.get("nutriscore_grade"),
+                                    "image": product.get(
+                                        "selected_images", {}).get(
+                                            "front", {}).get(
+                                                "display", {}).get(
+                                                    "fr"),
+                                    "sugar": sugar,
+                                    "satFat": satFat,
+                                    "salt": salt,
+                                    "fat": fat,
+                                },
+                            )
 
-                        # assign product 'compared_to_category' attribute
-                        try:
-                            product_DB.compared_to_category = Category.objects.get(
-                                    id=product.get("compared_to_category")
-                                )
-                            product_DB.save()
-                        except exceptions.ObjectDoesNotExist:
-                            product_DB.compared_to_category = None
-                            product_DB.save()
-                        count += 1
+                        if created:
+                            categories = product.get('categories_tags', [])
+                            for category in categories:
+                                # create category in DB :
+                                category_DB = self.created_category(
+                                    category, category_names)
+                                # add to product :
+                                product_DB.category.add(category_DB)
+
+                            # assign product 'compared_to_category' attribute
+                            try:
+                                product_DB.compared_to_category = Category.objects.get(
+                                        id=product.get("compared_to_category")
+                                    )
+                                product_DB.save()
+                            except exceptions.ObjectDoesNotExist:
+                                product_DB.compared_to_category = None
+                                product_DB.save()
+                            count += 1

@@ -44,6 +44,7 @@ class TestNutella(TestCase):
         call_command('init_db')
         nutella = Product.objects.get(code=3017620422003)
         self.assertEquals(nutella.name, "Nutella")
+        self.assertFalse(Product.objects.filter(name="Nutella doublon").exists())
 
 
 class TestCleanDB(TestCase):
