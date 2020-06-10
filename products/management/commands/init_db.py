@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 # If product has 100g composition
                 if product.get("nutriscore_grade"):
                     product_DB, created = Product.objects.get_or_create(
-                            code=product["code"],
+                            code=int(product["code"]),
                             defaults={
                                 "code": product["code"],
                                 "name": product.get("product_name", product.get("product_name_fr")),
@@ -83,21 +83,22 @@ class Command(BaseCommand):
                             },
                         )
 
-                    categories = product.get('categories_tags', [])
-                    for category in categories:
-                        # create category in DB :
-                        category_DB = self.created_category(
-                            category, category_names)
-                        # add to product :
-                        product_DB.category.add(category_DB)
+                    if created:
+                        categories = product.get('categories_tags', [])
+                        for category in categories:
+                            # create category in DB :
+                            category_DB = self.created_category(
+                                category, category_names)
+                            # add to product :
+                            product_DB.category.add(category_DB)
 
-                    # assign product 'compared_to_category' attribute
-                    try:
-                        product_DB.compared_to_category = Category.objects.get(
-                                id=product.get("compared_to_category")
-                            )
-                        product_DB.save()
-                    except exceptions.ObjectDoesNotExist:
-                        product_DB.compared_to_category = None
-                        product_DB.save()
-                    count += 1
+                        # assign product 'compared_to_category' attribute
+                        try:
+                            product_DB.compared_to_category = Category.objects.get(
+                                    id=product.get("compared_to_category")
+                                )
+                            product_DB.save()
+                        except exceptions.ObjectDoesNotExist:
+                            product_DB.compared_to_category = None
+                            product_DB.save()
+                        count += 1
