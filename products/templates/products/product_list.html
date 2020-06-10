@@ -1,13 +1,16 @@
 {% extends "base_generic.html" %}
 {% load static %}
 
+
 {% block title %}Résultats de recherche{% endblock %}
+
 
 {% block header %}
     <h1 class="text-uppercase text-white font-weight-bold">
         Résultats de recherche
     </h1>
 {% endblock %}
+
 
 {% block content %}
     <h2>Voici ce qu'on a dans notre base :</h2>
@@ -17,19 +20,17 @@
             {% for product in object_list %}
                 <div class="col-xs-12 col-sm-4 col-md-4 gutter-xs-xs gutter-margin-xs-xs mb-3">
                     <div class="card" style="">
-                        {# <a href="{% url 'products:detail' product.code %}"> #}
                         <a href="{% url 'products:compare' product.code %}">
-                                {% if product.image %}
-                        <img src="{{ product.image }}" class="card-img-top product-thumb" alt="">
-                        {% else %}
-                        <img src="{% static 'assets/img/product.jpg'%}" alt="" class="card-img-top product-thumb">
-                        {% endif %}
-                        {% if product.nutritionGrade %}
-                            <span class="grade grade-{{ product.nutritionGrade }}"><b>{{ product.nutritionGrade|upper }}</b></span>
-                        {% endif %}
+                            {% if product.image %}
+                                <img src="{{ product.image }}" class="card-img-top product-thumb" alt="">
+                            {% else %}
+                                <img src="{% static 'assets/img/product.jpg'%}" alt="" class="card-img-top product-thumb">
+                            {% endif %}
+                            {% if product.nutritionGrade %}
+                                <span class="grade grade-{{ product.nutritionGrade }}"><b>{{ product.nutritionGrade|upper }}</b></span>
+                            {% endif %}
                         <div class="card-body py-1">
                           <p class="card-title">{{ product.name|title|truncatechars:19 }}</p></a>
-                          <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
                         </div>
                       </div>
                 </div>

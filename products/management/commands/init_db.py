@@ -49,7 +49,9 @@ class Command(BaseCommand):
         with open(os.path.join(os.path.dirname(__file__), "categories_cleaned.json"), 'r') as json_file:
             category_names = load(json_file)
 
-        for page in range(1, 2):
+        for page in range(1, 6):
+            if count >= 6000:
+                break
             products = self.get_products(page)
 
             for product in products:
