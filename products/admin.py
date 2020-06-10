@@ -3,7 +3,7 @@ from . models import Product, Favourite
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'nutritionGrade', 'category',)
+    list_display = ('name', 'code', 'nutritionGrade',)
     list_filter = ('nutritionGrade',)
     ordering = ('category', 'nutritionGrade', )
     search_fields = ('name', 'category',)
