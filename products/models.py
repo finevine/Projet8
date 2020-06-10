@@ -8,8 +8,8 @@ class ProductManager(models.Manager):
     def similar(self, name):
         # icontains for case-insensitive
         return (
-            Product.objects.filter(name__icontains=name) |
-            Product.objects.filter(category__name__icontains=name)
+            Product.objects.filter(name__icontains=name)
+            # | Product.objects.filter(category__name__icontains=name)
             )
 
     def better(self, product_to_replace):
@@ -52,7 +52,7 @@ class Product(models.Model):
     '''
 
     objects = ProductManager()
-    code = models.BigIntegerField(primary_key=True)
+    code = models.BigIntegerField(primary_key=True, unique=True)
     name = models.CharField(max_length=100, null=True, verbose_name="Nom")
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     nutritionGrade = models.CharField(

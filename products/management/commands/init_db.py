@@ -64,7 +64,11 @@ class Command(BaseCommand):
                 # limit to 5000 products (Heroku_db < 10000 rows)
                 if count >= 6000:
                     break
-                if not Product.objects.filter(code=code_to_store).exists():
+
+                try:
+                    Product.objects.get(code=code_to_store)
+                    pass
+                except exceptions.ObjectDoesNotExist:
                     # Assign attributes to product
                     sugar = product["nutriments"].get("sugars_100g", 0)
                     satFat = product["nutriments"].get("saturated-fat_100g", 0)
@@ -73,7 +77,6 @@ class Command(BaseCommand):
 
                     # If product has nutritiongrade
                     if product.get("nutriscore_grade"):
-
                         product_DB, created = Product.objects.get_or_create(
                                 code=code_to_store,
                                 defaults={
@@ -94,12 +97,14 @@ class Command(BaseCommand):
 
                         if created:
                             categories = product.get('categories_tags', [])
+                            categories_DB = []
                             for category in categories:
                                 # create category in DB :
-                                category_DB = self.created_category(
-                                    category, category_names)
-                                # add to product :
-                                product_DB.category.add(category_DB)
+                                categories_DB.append(
+                                    self.created_category(category, category_names)
+                                )
+                            # add to product :
+                            product_DB.category.set(categories_DB)
 
                             # assign product 'compared_to_category' attribute
                             try:

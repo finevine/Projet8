@@ -2,6 +2,7 @@
 ##################
 node_modules/
 products/management/commands/categories.json
+products/tests/mock_off_real.json
 
 # Visual Studio Code This should ignore the entire #
 # .vscode directory, no matter where it is located.# 
