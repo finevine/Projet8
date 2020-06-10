@@ -37,7 +37,7 @@ and then `coverage report`
 
 ## INIT et UPDATE
 
-Importe un maximum de 5000 produits de openFoodFacts en tout
+Importe un maximum de 6000 produits de openFoodFacts en tout
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

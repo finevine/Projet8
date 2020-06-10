@@ -54,7 +54,7 @@ class Command(BaseCommand):
 
             for product in products:
                 # limit to 5000 products (Heroku_db < 10000 rows)
-                if count >= 5000:
+                if count >= 6000:
                     break
                 # Assign attributes to product
                 sugar = product["nutriments"].get("sugars_100g", 0)
