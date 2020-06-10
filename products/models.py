@@ -6,15 +6,16 @@ from itertools import chain
 
 class ProductManager(models.Manager):
     def similar(self, name):
+        # icontains for case-insensitive
         return (
-            Product.objects.filter(name__contains=name) |
-            Product.objects.filter(category__name__contains=name)
+            Product.objects.filter(name__icontains=name) |
+            Product.objects.filter(category__name__icontains=name)
             )
 
     def better(self, product_to_replace):
         # Find products from the same categories ...
-        products = Product.objects.filter(
-            category__id__in=product_to_replace.category.values_list('id'))
+        products = Product.objects.filter(category__id=product_to_replace.compared_to_category.id)
+            # category__id__in=product_to_replace.category.values_list('id'))
         # ... differents from product_to_replace ...
         products = products.exclude(code=product_to_replace.code)
         # ... have a nutritionGrade >= nutritionGradetoreplace :
@@ -71,6 +72,12 @@ class Product(models.Model):
         Category,
         related_name="category",
         verbose_name="Catégorie")
+
+    compared_to_category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True
+    )
 
     class Meta:
         verbose_name = "Produit"

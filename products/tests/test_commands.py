@@ -22,6 +22,10 @@ class TestInitDB(TestCase):
         self.assertEquals(
             Product.objects.get(code=3274080005003).name,
             "Eau de source")
+
+        self.assertEquals(
+            Product.objects.get(code=3274080005003).compared_to_category.id,
+            "en:unsweetened-beverages")
         
         # test the manytomanyfield is used well
         mock_categories = Product.objects.get(

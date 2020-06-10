@@ -1,5 +1,6 @@
 import requests
 import os
+import django.core.exceptions as exceptions
 from json import load
 from django.core.management.base import BaseCommand
 from products.models import Product, Category
@@ -34,7 +35,7 @@ class Command(BaseCommand):
         return req_output["products"]
 
     def created_category(self, category, category_names):
-        category_DB, created = Category.objects.update_or_create(
+        category_DB, created = Category.objects.get_or_create(
             id=category,
             defaults={
                 "id": category,
@@ -48,12 +49,12 @@ class Command(BaseCommand):
         with open(os.path.join(os.path.dirname(__file__), "categories_cleaned.json"), 'r') as json_file:
             category_names = load(json_file)
 
-        for page in range(1, 6):
+        for page in range(1, 2):
             products = self.get_products(page)
 
             for product in products:
-                # limit to 9000 products (Heroku_db < 10000 rows)
-                if count >= 9000:
+                # limit to 6000 products (Heroku_db < 10000 rows)
+                if count >= 1000:
                     break
                 # Assign attributes to product
                 sugar = product["nutriments"].get("sugars_100g", 0)
@@ -76,7 +77,7 @@ class Command(BaseCommand):
                                 "sugar": sugar,
                                 "satFat": satFat,
                                 "salt": salt,
-                                "fat": fat
+                                "fat": fat,
                             },
                         )
 
@@ -88,4 +89,13 @@ class Command(BaseCommand):
                         # add to product :
                         product_DB.category.add(category_DB)
 
+                    # assign product 'compared_to_category' attribute
+                    try:
+                        product_DB.compared_to_category = Category.objects.get(
+                                id=product.get("compared_to_category")
+                            )
+                        product_DB.save()
+                    except exceptions.ObjectDoesNotExist:
+                        product_DB.compared_to_category = None
+                        product_DB.save()
                     count += 1

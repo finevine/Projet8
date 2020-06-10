@@ -160,20 +160,24 @@ class TestCompare(TestCase):
         Category.objects.create(
             id="fruits:fr",
             name="Fruits frais")
-        cls.category = Category.objects.get(id="fruits:fr")
+        cls.test_category = Category.objects.get(id="fruits:fr")
+
         # create 15 products
         for i in range(15):
             prod = Product.objects.create(
                 name="prod"+str(i),
                 code=str(i),
-                nutritionGrade='b')
-            prod.category.add(cls.category)
+                nutritionGrade='b',
+                compared_to_category=cls.test_category)
+            prod.category.add(cls.test_category)
+
         # create one unhealthy product to check filtering
         prod = Product.objects.create(
                 name="lastprod",
                 code='67890',
-                nutritionGrade='e')
-        prod.category.add(cls.category)
+                nutritionGrade='e',
+                compared_to_category=cls.test_category)
+        prod.category.add(cls.test_category)
         cls.prod1 = Product.objects.get(code=1)
 
 

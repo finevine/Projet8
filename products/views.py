@@ -53,8 +53,9 @@ class ProductsView(generic.ListView):
     template_name = 'products/product_list.html'
 
     def get_queryset(self):
+        ''' return 120 similar products '''
         name = self.request.GET.get('q')
-        return Product.objects.similar(name)
+        return Product.objects.similar(name.lower())[:120]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,9 +86,9 @@ class CompareView(generic.ListView):
     template_name = 'products/compare_list.html'
 
     def get_queryset(self):
-
+        ''' return max 120 better products '''
         self.product_to_replace = Product.objects.get(code=self.kwargs['pk'])
-        return Product.objects.better(self.product_to_replace)
+        return Product.objects.better(self.product_to_replace)[:120]
 
     def get_context_data(self, **kwargs):
         ''' Pass the context that will be used in template '''
