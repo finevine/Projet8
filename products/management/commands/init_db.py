@@ -10,6 +10,7 @@ SEARCH_HEADER = {
     "user-agent": "Purbeurre - https://github.com/finevine/Projet8"
     }
 
+
 class Command(BaseCommand):
     help = 'Create DB and populate it'
 
@@ -89,7 +90,7 @@ class Command(BaseCommand):
                 "categories_cleaned.json"), 'r') as json_file:
             category_names = load(json_file)
 
-        # pages of openFoodFacts request 
+        # pages of openFoodFacts request
         for page in range(1, 7):
             print(f'page {page} ({count} products saved)')
             if count >= 6000:
@@ -110,6 +111,7 @@ class Command(BaseCommand):
                         categories, category_names)
                     # add to product :
                     product_DB.category.set(categories_DB)
+                    count += len(categories_DB)
 
                     # assign product 'compared_to_category' attribute
                     try:

@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
-from itertools import chain
 
 
 class ProductManager(models.Manager):
@@ -109,4 +108,3 @@ class Favourite(models.Model):
                 name='unique_favourite')
         ]
         ordering = ['healthy_product']
-

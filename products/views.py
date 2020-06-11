@@ -71,7 +71,8 @@ class FavouritesView(generic.ListView):
     template_name = 'products/favourites_list.html'
 
     def get_queryset(self):
-        return Favourite.objects.filter(owner=self.request.user).order_by('unhealthy_product__code')
+        return Favourite.objects.filter(
+            owner=self.request.user).order_by('unhealthy_product__code')
 
 
 class CompareView(generic.ListView):
