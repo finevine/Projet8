@@ -104,14 +104,14 @@ class Command(BaseCommand):
 
                 product_DB = self.create_product_in_DB(product)
                 if product_DB:
-                    # categories of the product
-                    categories = product.get('categories_tags', [])
-                    # categories created in DB
-                    categories_DB = self.create_categories_in_DB(
-                        categories, category_names)
-                    # add to product :
-                    product_DB.category.set(categories_DB)
-                    count += len(categories_DB)
+                    # # categories of the product
+                    # categories = product.get('categories_tags', [])
+                    # # categories created in DB
+                    # categories_DB = self.create_categories_in_DB(
+                    #     categories, category_names)
+                    # # add to product :
+                    # product_DB.category.set(categories_DB)
+                    # count += len(categories_DB)
 
                     # assign product 'compared_to_category' attribute
                     try:
