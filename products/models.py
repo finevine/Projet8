@@ -29,7 +29,7 @@ class Category(models.Model):
     '''
     name
     '''
-    id = models.CharField(max_length=100, primary_key=True)
+    id = models.CharField(max_length=100, primary_key=True, blank=False)
     name = models.CharField(
         verbose_name="Category name", max_length=400, unique=False)
     slug = models.SlugField(
