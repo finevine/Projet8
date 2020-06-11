@@ -21,7 +21,7 @@ class Command(BaseCommand):
             "tag_contains_0": "contains",
             "tag_0": "france",
             "sort_by": "unique_scans_n",
-            "page_size": 1000,
+            "page_size": 500,
             "page": page,
             "json": 1,
         }
@@ -97,7 +97,7 @@ class Command(BaseCommand):
 
         # pages of openFoodFacts request
         broken = False
-        for page in range(1, 7):
+        for page in range(1, 18):
             if broken:
                 break
             print(f'page {page} ({count} save in DB)')
@@ -114,7 +114,7 @@ class Command(BaseCommand):
                 if product_DB:
                     # if False:
                     # categories of the product
-                    categories = product.get('categories_tags', [])[:5]
+                    categories = product.get('categories_tags', [])[:3]
                     # categories createdin DB
                     if categories:
                         categories_DB = self.create_categories_in_DB(
@@ -133,3 +133,4 @@ class Command(BaseCommand):
                     except (exceptions.ObjectDoesNotExist, IndexError):
                         product_DB.compared_to_category = None
                         product_DB.save()
+            print(f'page {page} ({count} save in DB)')
