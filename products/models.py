@@ -11,18 +11,18 @@ class ProductManager(models.Manager):
             Product.objects.filter(
                 models.Q(name__icontains=name)
                 | models.Q(category__name__icontains=name)
-            ).order_by('code').distinct()
+            ).order_by('nutritionGrade', 'code').distinct()
         )
 
     def better(self, product_to_replace):
         # Find products from the same categories ...
-        products = Product.objects.filter(category__id=product_to_replace.compared_to_category.id)
-            # category__id__in=product_to_replace.category.values_list('id'))
+        products = Product.objects.filter(
+            category__id=product_to_replace.compared_to_category.id)
         # ... differents from product_to_replace ...
         products = products.exclude(code=product_to_replace.code)
-        # ... have a nutritionGrade >= nutritionGradetoreplace :
+        # ... have a nutritionGrade > nutritionGradetoreplace :
         return products.filter(
-            nutritionGrade__lte=product_to_replace.nutritionGrade
+            nutritionGrade__lt=product_to_replace.nutritionGrade
             ).order_by('nutritionGrade', 'code')
 
 
