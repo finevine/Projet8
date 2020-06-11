@@ -107,6 +107,8 @@ class Command(BaseCommand):
                 if count >= 9000:
                     broken = True
                     break
+                    print(f'page {page} ({count} save in DB)')
+
                 product_DB = self.create_product_in_DB(product)
                 count +=1
 
@@ -133,4 +135,3 @@ class Command(BaseCommand):
                     except (exceptions.ObjectDoesNotExist, IndexError):
                         product_DB.compared_to_category = None
                         product_DB.save()
-            print(f'page {page} ({count} save in DB)')

@@ -16,7 +16,7 @@ class ProductManager(models.Manager):
     def better(self, product_to_replace):
         # Find products from the same categories ...
         products = Product.objects.filter(
-            category__id=product_to_replace.compared_to_category.id)
+            category__in=product_to_replace.category.all())
         # ... differents from product_to_replace ...
         products = products.exclude(code=product_to_replace.code)
         # ... have a nutritionGrade > nutritionGradetoreplace :
