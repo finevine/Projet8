@@ -49,7 +49,7 @@ class Command(BaseCommand):
                             "name": category_names.get(category)
                         })
                     categories_res.append(category_DB)
-                except django.db.utils.IntegrityError:
+                except django.db.IntegrityError:
                     pass
 
         return categories_res
