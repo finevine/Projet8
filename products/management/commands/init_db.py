@@ -41,16 +41,18 @@ class Command(BaseCommand):
         categories_res = []
         for category in categories:
             if category and category_names.get(category, ''):
-                category_DB, created = Category.objects.get_or_create(
-                    id=category,
-                    defaults={
-                        "id": category,
-                        "name": category_names.get(category)
-                    })
-                categories_res.append(category_DB)
-        
+                try:
+                    category_DB, created = Category.objects.get_or_create(
+                        id=category,
+                        defaults={
+                            "id": category,
+                            "name": category_names.get(category)
+                        })
+                    categories_res.append(category_DB)
+                except django.db.utils.IntegrityError:
+                    pass
+
         return categories_res
-        
 
     def create_product_in_DB(self, product):
         '''return product in DB created if nutriscore_grade else None'''
