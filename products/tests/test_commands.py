@@ -45,7 +45,7 @@ class TestInitDB(TestCase):
         self.assertFalse(Product.objects.filter(code=123456781).exists())
 
 
-class TestDuplicates(TestCase):
+class TestInitDuplicates(TestCase):
 
     @patch('products.management.commands.init_db.requests.get')
     def test_init_nutella(self, mock_request):
