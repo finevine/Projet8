@@ -167,24 +167,24 @@ class TestCompare(TestCase):
             prod = Product.objects.create(
                 name="prod"+str(i),
                 code=str(i),
-                nutritionGrade='b',
+                nutritionGrade='a',
                 compared_to_category=cls.test_category)
             prod.category.add(cls.test_category)
 
         # create one unhealthy product to check filtering
-        prod = Product.objects.create(
+        cls.bad_prod = Product.objects.create(
                 name="lastprod",
                 code='67890',
                 nutritionGrade='e',
                 compared_to_category=cls.test_category)
-        prod.category.add(cls.test_category)
+        cls.bad_prod.category.add(cls.test_category)
         cls.prod1 = Product.objects.get(code=1)
 
 
     def test_compare_resolves(self):
         url = reverse(
             'products:compare',
-            args=[self.prod1.code])
+            args=[self.bad_prod.code])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         # Test if response contains product searched (capitalized)
@@ -193,7 +193,7 @@ class TestCompare(TestCase):
     def test_pagination_is_twelve(self):
         url = reverse(
             'products:compare',
-            args=[self.prod1.code])
+            args=[self.bad_prod.code])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('is_paginated' in response.context)
@@ -202,16 +202,16 @@ class TestCompare(TestCase):
 
     def test_lists_all_candidates(self):
         '''
-        Get second page and confirm it has exactly remaining (15-1-12=2) items
+        Get second page and confirm it has exactly remaining (15-12=3) items
         '''
-        url = reverse('products:compare', args=[self.prod1.code])
+        url = reverse('products:compare', args=[self.bad_prod.code])
         response = self.client.get(
             url,
             data={'page': 2})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('is_paginated' in response.context)
         self.assertTrue(response.context['is_paginated'])
-        self.assertTrue(len(response.context['product_list']) == 2)
+        self.assertTrue(len(response.context['product_list']) == 3)
 
 
 #########################

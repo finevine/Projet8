@@ -49,6 +49,7 @@ class Command(BaseCommand):
         return categories_res
 
     def create_product_in_DB(self, product):
+        '''return product in DB created if nutriscore_grade else None'''
         sugar = product["nutriments"].get("sugars_100g", 0)
         satFat = product["nutriments"].get("saturated-fat_100g", 0)
         salt = product["nutriments"].get("salt_100g", 0)
@@ -75,8 +76,9 @@ class Command(BaseCommand):
                     "fat": fat,
                 },
             )
-
-        return product_DB
+            return product_DB
+        else:
+            return None
 
     def handle(self, *args, **options):
         count = 0
@@ -89,7 +91,7 @@ class Command(BaseCommand):
 
         # pages of openFoodFacts request 
         for page in range(1, 7):
-            print('page ' + str(page))
+            print(f'page {page} ({count} products saved)')
             if count >= 6000:
                 break
             products = self.get_products(page)
@@ -100,21 +102,22 @@ class Command(BaseCommand):
                     break
 
                 product_DB = self.create_product_in_DB(product)
-                # categories of the product
-                categories = product.get('categories_tags', [])
-                # categories created in DB
-                categories_DB = self.create_categories_in_DB(
-                    categories, category_names)
-                # add to product :
-                product_DB.category.set(categories_DB)
+                if product_DB:
+                    # categories of the product
+                    categories = product.get('categories_tags', [])
+                    # categories created in DB
+                    categories_DB = self.create_categories_in_DB(
+                        categories, category_names)
+                    # add to product :
+                    product_DB.category.set(categories_DB)
 
-                # assign product 'compared_to_category' attribute
-                try:
-                    category_to_compare = Category.objects.get(
-                            id=product.get("compared_to_category"))
-                    product_DB.compared_to_category = category_to_compare
-                    product_DB.save()
-                except exceptions.ObjectDoesNotExist:
-                    product_DB.compared_to_category = None
-                    product_DB.save()
-                count += 1
+                    # assign product 'compared_to_category' attribute
+                    try:
+                        category_to_compare = Category.objects.get(
+                                id=product.get("compared_to_category"))
+                        product_DB.compared_to_category = category_to_compare
+                        product_DB.save()
+                    except exceptions.ObjectDoesNotExist:
+                        product_DB.compared_to_category = None
+                        product_DB.save()
+                    count += 1

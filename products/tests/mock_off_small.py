@@ -1,6 +1,21 @@
 MOCK_REQUEST = {
     "products": [
         {
+            "product_name":"Product without nutritionscore",
+            "code": "123456781",
+            "categories_tags": [
+                "en:fakecat",
+                "en:fakecat2"
+            ],
+            "compared_to_category": "en:cocoa-and-hazelnuts-spreads",
+            "nutriments": {
+                "nova-group_serving": 4,
+                "proteins_100g": 6.3,
+                "proteins": 6.3,
+                "fat": 30.9
+            }
+        },
+        {
             "stores": "Carrefour,auchan,Leclerc",
             "sortkey": 301591456287,
             "code": "3274080005003",

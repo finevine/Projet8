@@ -33,13 +33,17 @@ class TestInitDB(TestCase):
         # test the manytomanyfield is used well
         mock_categories = Product.objects.get(
             code=3274080005003).category.all()
-        water_cat = MOCK_REQUEST['products'][0]["categories_tags"]
+        water_cat = MOCK_REQUEST['products'][1]["categories_tags"]
+        # Compare categories of product 1 in json and product 3274080005003
         self.assertCountEqual(
             [m.id for m in mock_categories],
             water_cat)
         self.assertListEqual([cat.id for cat in eau_de_source.category.all()],
             ["en:beverages", "en:waters", "en:spring-waters", "en:unsweetened-beverages"]
         )
+        # Check that product without nutritionscore is not saved 
+        self.assertFalse(Product.objects.filter(code=123456781).exists())
+
 
 class TestDuplicates(TestCase):
 
@@ -54,20 +58,6 @@ class TestDuplicates(TestCase):
         self.assertEquals(len(list(
             Product.objects.filter(code=3017620422003).order_by('code')
             )), 1)
-
-
-    # @patch('products.management.commands.init_db.requests.get')
-    # def test_init_real_off(self, mock_request):
-    #     # replace json by a real mock openff request mocked
-    #     with open(
-    #             os.path.join(
-    #                 os.path.dirname(__file__),'mock_off_real.json'), 'r') as json_file:
-    #         # load a json and get products
-    #         OFF_PRODUCTS = load(json_file)
-    #     mock_request.return_value.json.return_value = OFF_PRODUCTS
-    #     call_command('init_db')
-    #     nutella_biscuits = Product.objects.get(code=8000500310427)
-    #     self.assertEquals(len(list(Product.objects.filter(code=8000500310427))), 1)
 
 
 class TestCleanDB(TestCase):
