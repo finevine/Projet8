@@ -92,12 +92,14 @@ class Command(BaseCommand):
 
         # pages of openFoodFacts request
         for page in range(1, 7):
-            print(f'page {page} ({count} products saved)')
-            products = self.get_products(page)
-            # limit to products (Heroku_db < 10000 rows)
             if count >= 1000:
                 break
+            print(f'page {page} ({count} products saved)')
+            products = self.get_products(page)
             for product in products:
+                # limit to products (Heroku_db < 10000 rows)
+                if count >= 1000:
+                    break
                 product_DB = self.create_product_in_DB(product)
                 if product_DB:
                     # # categories of the product
