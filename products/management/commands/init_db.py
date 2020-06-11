@@ -40,7 +40,7 @@ class Command(BaseCommand):
         category_names (dict)'''
         categories_res = []
         for category in categories:
-            if category_names.get(category, ''):
+            if category and category_names.get(category, ''):
                 category_DB, created = Category.objects.get_or_create(
                     id=category,
                     defaults={
@@ -107,10 +107,13 @@ class Command(BaseCommand):
                     break
                 product_DB = self.create_product_in_DB(product)
                 count +=1
-                if False:
+
+                # assign product 'compared_to_category' attribute
+                if product_DB:
+                    # if False:
                     # categories of the product
-                    categories = product.get('categories_tags', [])
-                    # categories created in DB
+                    categories = product.get('categories_tags', [])[:2]
+                    # categories createdin DB
                     if categories:
                         categories_DB = self.create_categories_in_DB(
                             categories, category_names)
@@ -118,8 +121,6 @@ class Command(BaseCommand):
                         product_DB.category.set(categories_DB)
                         count += len(categories_DB)
 
-                    # assign product 'compared_to_category' attribute
-                if product_DB:
                     try:
                         category_to_compare = self.create_categories_in_DB(
                             [product.get("compared_to_category")],
