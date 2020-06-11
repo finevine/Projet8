@@ -100,11 +100,11 @@ class Command(BaseCommand):
         for page in range(1, 7):
             if broken:
                 break
-            print(f'page {page} ({count} products saved)')
+            print(f'page {page} ({count} save in DB)')
             products = self.get_products(page)
             for product in products:
                 # limit to products (Heroku_db < 10000 rows)
-                if count >= 5000:
+                if count >= 9000:
                     broken = True
                     break
                 product_DB = self.create_product_in_DB(product)
@@ -114,7 +114,7 @@ class Command(BaseCommand):
                 if product_DB:
                     # if False:
                     # categories of the product
-                    categories = product.get('categories_tags', [])[:2]
+                    categories = product.get('categories_tags', [])[:5]
                     # categories createdin DB
                     if categories:
                         categories_DB = self.create_categories_in_DB(
