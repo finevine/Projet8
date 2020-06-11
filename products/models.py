@@ -11,7 +11,7 @@ class ProductManager(models.Manager):
             Product.objects.filter(
                 models.Q(name__icontains=name)
                 | models.Q(category__name__icontains=name)
-            ).order_by('nutritionGrade', 'code').distinct()
+            ).order_by('-nutritionGrade', 'code').distinct()
         )
 
     def better(self, product_to_replace):
