@@ -8,9 +8,11 @@ class ProductManager(models.Manager):
     def similar(self, name):
         # icontains for case-insensitive
         return (
-            Product.objects.filter(name__icontains=name)
-            # | Product.objects.filter(category__name__icontains=name)
-            )
+            Product.objects.filter(
+                models.Q(name__icontains=name)
+                | models.Q(category__name__icontains=name)
+            ).order_by('code').distinct()
+        )
 
     def better(self, product_to_replace):
         # Find products from the same categories ...
@@ -21,7 +23,7 @@ class ProductManager(models.Manager):
         # ... have a nutritionGrade >= nutritionGradetoreplace :
         return products.filter(
             nutritionGrade__lte=product_to_replace.nutritionGrade
-            ).order_by('nutritionGrade')
+            ).order_by('nutritionGrade', 'code')
 
 
 class Category(models.Model):

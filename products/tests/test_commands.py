@@ -41,7 +41,7 @@ class TestInitDB(TestCase):
             ["en:beverages", "en:waters", "en:spring-waters", "en:unsweetened-beverages"]
         )
 
-class TestDoublons(TestCase):
+class TestDuplicates(TestCase):
 
     @patch('products.management.commands.init_db.requests.get')
     def test_init_nutella(self, mock_request):
@@ -51,7 +51,9 @@ class TestDoublons(TestCase):
         nutella = Product.objects.get(code=3017620422003)
         self.assertEquals(nutella.name, "Nutella")
         self.assertFalse(Product.objects.filter(name="Nutella doublon").exists())
-        self.assertEquals(len(list(Product.objects.filter(code=3017620422003).all())), 1)
+        self.assertEquals(len(list(
+            Product.objects.filter(code=3017620422003).order_by('code')
+            )), 1)
 
 
     # @patch('products.management.commands.init_db.requests.get')
