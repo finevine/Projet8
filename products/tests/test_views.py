@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from products import views
 from products.models import Product, Category, Favourite
 
-# from .mock import OPENFF_REQUEST
 
 #########################
 #    TEST 404
@@ -50,7 +49,9 @@ class TestSaveDelete(TestCase):
     def test_save(self):
         ''' save redirect and actually save Favourite '''
         # SAVE url to call with a post
-        url = reverse('products:save', kwargs={'pk_health': 0, 'pk_unhealth': 1})
+        url = reverse(
+            'products:save',
+            kwargs={'pk_health': 0, 'pk_unhealth': 1})
         response = self.client.post(url, {}, HTTP_REFERER='http://mytest')
 
         # And get redirected to the same origin page
@@ -73,7 +74,9 @@ class TestSaveDelete(TestCase):
         self.test_save()
 
         # Then DELETE
-        url = reverse('products:delete', kwargs={'pk_health': 0, 'pk_unhealth': 1})
+        url = reverse(
+            'products:delete',
+            kwargs={'pk_health': 0, 'pk_unhealth': 1})
         response = self.client.post(url, {}, HTTP_REFERER='http://mytest')
 
         self.assertRedirects(
@@ -98,7 +101,6 @@ class TestSearch(TestCase):
 
     @patch('products.models.ProductManager.similar')
     def test_ProductsView(self, mock_similar):
-        mock_category = Category(id="fruits:fr", name="Fruits")
         mock_similar.return_value = [Product(code='1234', name='toto')]
         url = reverse('products:search')
         response = self.client.get(url, data={'q': 'toto'})
@@ -180,7 +182,6 @@ class TestCompare(TestCase):
         cls.bad_prod.category.add(cls.test_category)
         cls.prod1 = Product.objects.get(code=1)
 
-
     def test_compare_resolves(self):
         url = reverse(
             'products:compare',
@@ -228,16 +229,15 @@ class TestDetail(TestCase):
 
         # Patch genericView to return only one object
         with patch.object(
-            views.ProductDetailView,
-            'get_object',
-            return_value=mock_product):
+                views.ProductDetailView,
+                'get_object', return_value=mock_product):
 
-                url = reverse('products:detail', args=[5])
-                response = self.client.get(url)
-                # Test function used
-                self.assertIs(
-                    resolve(url).func.__name__,
-                    views.ProductDetailView.as_view().__name__)
-                # Test template used
-                self.assertTemplateUsed(response, 'products/product_detail.html')
-                self.assertContains(response, 'Prod5')
+            url = reverse('products:detail', args=[5])
+            response = self.client.get(url)
+            # Test function used
+            self.assertIs(
+                resolve(url).func.__name__,
+                views.ProductDetailView.as_view().__name__)
+            # Test template used
+            self.assertTemplateUsed(response, 'products/product_detail.html')
+            self.assertContains(response, 'Prod5')

@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.views import generic
 from django.urls import reverse
 from django.db import IntegrityError
@@ -71,7 +71,7 @@ class FavouritesView(generic.ListView):
     template_name = 'products/favourites_list.html'
 
     def get_queryset(self):
-        return Favourite.objects.filter(owner=self.request.user)
+        return Favourite.objects.filter(owner=self.request.user).order_by('unhealthy_product__code')
 
 
 class CompareView(generic.ListView):

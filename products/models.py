@@ -22,8 +22,8 @@ class ProductManager(models.Manager):
         products = products.exclude(code=product_to_replace.code)
         # ... have a nutritionGrade > nutritionGradetoreplace :
         return products.filter(
-            nutritionGrade__lt=product_to_replace.nutritionGrade
-            ).order_by('nutritionGrade', 'code')
+            nutritionGrade__lte=product_to_replace.nutritionGrade
+            ).order_by('nutritionGrade', 'code').distinct()
 
 
 class Category(models.Model):
@@ -55,8 +55,8 @@ class Product(models.Model):
 
     objects = ProductManager()
     code = models.BigIntegerField(primary_key=True, unique=True)
-    name = models.CharField(max_length=100, null=True, verbose_name="Nom")
-    slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
+    name = models.CharField(max_length=255, null=True, verbose_name="Nom")
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
     nutritionGrade = models.CharField(
         max_length=1, null=True, verbose_name="Nutriscore")
     image = models.URLField(null=True)
