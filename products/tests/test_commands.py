@@ -35,12 +35,12 @@ class TestInitDB(TestCase):
             code=3274080005003).category.all()
         water_cat = MOCK_REQUEST['products'][1]["categories_tags"]
         # Compare categories of product 1 in json and product 3274080005003
-        # self.assertCountEqual(
-        #     [m.id for m in mock_categories],
-        #     water_cat)
-        # self.assertListEqual([cat.id for cat in eau_de_source.category.all()],
-        #     ["en:beverages", "en:waters", "en:spring-waters", "en:unsweetened-beverages"]
-        # )
+        self.assertCountEqual(
+            [m.id for m in mock_categories],
+            water_cat)
+        self.assertListEqual([cat.id for cat in eau_de_source.category.all()],
+            ["en:beverages", "en:waters", "en:spring-waters", "en:unsweetened-beverages"]
+        )
         # Check that product without nutritionscore is not saved 
         self.assertFalse(Product.objects.filter(code=123456781).exists())
 
@@ -59,6 +59,26 @@ class TestInitDuplicates(TestCase):
             Product.objects.filter(code=3017620422003).order_by('code')
             )), 1)
 
+
+class TestRealOFFPage(TestCase):
+
+    @patch('products.management.commands.init_db.requests.get')
+    def test_init_nutella(self, mock_request):
+        # Open json of all categories to associate id & names
+        with open(
+            os.path.join(
+                os.path.dirname(__file__),
+                "mock_off_real.json"), 'r') as json_file:
+            REAL_JSON = load(json_file)
+        # replace json by a big mock openff request
+        mock_request.return_value.json.return_value = REAL_JSON
+        call_command('init_db')
+        nutella = Product.objects.get(code=3017620422003)
+        self.assertEquals(nutella.name, "Nutella")
+        self.assertFalse(Product.objects.filter(name="Nutella doublon").exists())
+        self.assertEquals(len(list(
+            Product.objects.filter(code=3017620422003).order_by('code')
+            )), 1)
 
 class TestCleanDB(TestCase):
 

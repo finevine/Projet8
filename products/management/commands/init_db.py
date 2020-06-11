@@ -40,14 +40,17 @@ class Command(BaseCommand):
         category_names (dict)'''
         categories_res = []
         for category in categories:
-            category_DB, created = Category.objects.get_or_create(
-                id=category,
-                defaults={
-                    "id": category,
-                    "name": category_names.get(category, '')
-                })
-            categories_res.append(category_DB)
+            if category_names.get(category, ''):
+                category_DB, created = Category.objects.get_or_create(
+                    id=category,
+                    defaults={
+                        "id": category,
+                        "name": category_names.get(category)
+                    })
+                categories_res.append(category_DB)
+        
         return categories_res
+        
 
     def create_product_in_DB(self, product):
         '''return product in DB created if nutriscore_grade else None'''
@@ -99,27 +102,31 @@ class Command(BaseCommand):
             products = self.get_products(page)
             for product in products:
                 # limit to products (Heroku_db < 10000 rows)
-                if count >= 1000:
+                if count >= 5000:
                     broken = True
                     break
                 product_DB = self.create_product_in_DB(product)
-                if product_DB:
-                    # # categories of the product
-                    # categories = product.get('categories_tags', [])
-                    # # categories created in DB
-                    # categories_DB = self.create_categories_in_DB(
-                    #     categories, category_names)
-                    # # add to product :
-                    # product_DB.category.set(categories_DB)
-                    # count += len(categories_DB)
+                count +=1
+                if False:
+                    # categories of the product
+                    categories = product.get('categories_tags', [])
+                    # categories created in DB
+                    if categories:
+                        categories_DB = self.create_categories_in_DB(
+                            categories, category_names)
+                        # add to product :
+                        product_DB.category.set(categories_DB)
+                        count += len(categories_DB)
 
                     # assign product 'compared_to_category' attribute
+                if product_DB:
                     try:
                         category_to_compare = self.create_categories_in_DB(
                             [product.get("compared_to_category")],
                             category_names)
+                        count += 1
                         product_DB.compared_to_category = category_to_compare[0]
                         product_DB.save()
-                    except exceptions.ObjectDoesNotExist:
+                    except (exceptions.ObjectDoesNotExist, IndexError):
                         product_DB.compared_to_category = None
                         product_DB.save()
