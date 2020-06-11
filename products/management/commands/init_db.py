@@ -95,7 +95,7 @@ class Command(BaseCommand):
             print(f'page {page} ({count} products saved)')
             products = self.get_products(page)
             # limit to products (Heroku_db < 10000 rows)
-            if count >= 2500:
+            if count >= 1000:
                 break
             for product in products:
                 product_DB = self.create_product_in_DB(product)
@@ -111,11 +111,11 @@ class Command(BaseCommand):
 
                     # assign product 'compared_to_category' attribute
                     try:
-                        category_to_compare = Category.objects.get(
-                                id=product.get("compared_to_category"))
-                        product_DB.compared_to_category = category_to_compare
+                        category_to_compare = self.create_categories_in_DB(
+                            [product.get("compared_to_category")],
+                            category_names)
+                        product_DB.compared_to_category = category_to_compare[0]
                         product_DB.save()
                     except exceptions.ObjectDoesNotExist:
                         product_DB.compared_to_category = None
                         product_DB.save()
-                    count += 1
