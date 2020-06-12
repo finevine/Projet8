@@ -1,4 +1,3 @@
-from decimal import Decimal
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from products.models import Product, Category
@@ -64,7 +63,8 @@ class TestProductsModels(TestCase):
 
     def test_caracteristic_100g_saved_ok(self):
         self.assertEqual(
-            self.goodprod.fat + self.goodprod.satFat + self.goodprod.sugar + self.goodprod.salt,
+            (self.goodprod.fat + self.goodprod.satFat + 
+            self.goodprod.sugar + self.goodprod.salt),
             12.34)
 
     def test_slug_of_product(self):
@@ -81,22 +81,22 @@ class TestProductsModels(TestCase):
         self.assertEqual(str(self.cat1), "cat1")
 
     def test_product_category_assignment(self):
-        self.goodprod.category.add(self.cat1)
-        self.goodprod.category.add(self.cat2)
+        self.goodprod.categories.add(self.cat1)
+        self.goodprod.categories.add(self.cat2)
         self.assertQuerysetEqual(
-            self.goodprod.category.all(),
+            self.goodprod.categories.all(),
             [repr(self.cat1), repr(self.cat2)], ordered=False)
 
     def test_similar_method(self):
-        self.goodprod.category.add(self.cat1)
-        self.longprod.category.add(self.cat2)
+        self.goodprod.categories.add(self.cat1)
+        self.longprod.categories.add(self.cat2)
         # 2 categories were created using "name Test Category"
-        cat = Product.objects.filter(category__name__contains='Test Category')
+        cat = Product.objects.filter(categories__name__contains='Test Category')
         self.assertEquals(cat.count(), 2)
 
     def test_better_method(self):
-        self.goodprod.category.add(self.cat1)
-        self.badprod.category.add(self.cat1)
+        self.goodprod.categories.add(self.cat1)
+        self.badprod.categories.add(self.cat1)
         # select all products that are better than badprod
-        result = Product.objects.better(self.badprod)
+        result = Product.objects.get_better(self.badprod)
         self.assertTrue(999999 in [prod.code for prod in result])

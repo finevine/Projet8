@@ -1,6 +1,7 @@
 import requests
 import os
 import django.core.exceptions as exceptions
+from django.db import IntegrityError
 from json import load
 from django.core.management.base import BaseCommand
 from products.models import Product, Category
@@ -49,7 +50,7 @@ class Command(BaseCommand):
                             "name": category_names.get(category)
                         })
                     categories_res.append(category_DB)
-                except django.db.IntegrityError:
+                except IntegrityError:
                     pass
 
         return categories_res
@@ -110,7 +111,7 @@ class Command(BaseCommand):
                     print(f'page {page} ({count} save in DB)')
 
                 product_DB = self.create_product_in_DB(product)
-                count +=1
+                count += 1
 
                 # assign product 'compared_to_category' attribute
                 if product_DB:
@@ -122,7 +123,7 @@ class Command(BaseCommand):
                         categories_DB = self.create_categories_in_DB(
                             categories, category_names)
                         # add to product :
-                        product_DB.category.set(categories_DB)
+                        product_DB.categories.set(categories_DB)
                         count += len(categories_DB)
 
                     try:

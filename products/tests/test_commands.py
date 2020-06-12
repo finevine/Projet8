@@ -1,6 +1,6 @@
 import os
 from json import load
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
 from products.models import Product, Category, Favourite
@@ -29,16 +29,17 @@ class TestInitDB(TestCase):
         self.assertEquals(
             eau_de_source.compared_to_category.id,
             "en:unsweetened-beverages")
-        
+
         # test the manytomanyfield is used well
         mock_categories = Product.objects.get(
-            code=3274080005003).category.all()
+            code=3274080005003).categories.all()
         water_cat = MOCK_REQUEST['products'][1]["categories_tags"]
         # Compare categories of product 1 in json and product 3274080005003
-        self.assertListEqual([cat.id for cat in eau_de_source.category.all()],
-            ["en:beverages", "en:waters"]
+        self.assertListEqual(
+            [cat.id for cat in eau_de_source.categories.all()],
+            ["en:beverages", "en:waters", "en:spring-waters"]
         )
-        # Check that product without nutritionscore is not saved 
+        # Check that product without nutritionscore is not saved
         self.assertFalse(Product.objects.filter(code=123456781).exists())
 
 
@@ -51,7 +52,8 @@ class TestInitDuplicates(TestCase):
         call_command('init_db')
         nutella = Product.objects.get(code=3017620422003)
         self.assertEquals(nutella.name, "Nutella")
-        self.assertFalse(Product.objects.filter(name="Nutella doublon").exists())
+        self.assertFalse(
+            Product.objects.filter(name="Nutella doublon").exists())
         self.assertEquals(len(list(
             Product.objects.filter(code=3017620422003).order_by('code')
             )), 1)
@@ -72,10 +74,12 @@ class TestRealOFFPage(TestCase):
         call_command('init_db')
         nutella = Product.objects.get(code=3017620422003)
         self.assertEquals(nutella.name, "Nutella")
-        self.assertFalse(Product.objects.filter(name="Nutella doublon").exists())
+        self.assertFalse(
+            Product.objects.filter(name="Nutella doublon").exists())
         self.assertEquals(len(list(
             Product.objects.filter(code=3017620422003).order_by('code')
             )), 1)
+
 
 class TestCleanDB(TestCase):
 
@@ -108,5 +112,3 @@ class TestCleanDB(TestCase):
         self.assertEquals(count_prod, 0)
         self.assertEquals(count_cat, 0)
         self.assertEquals(count_fav, 0)
-
-

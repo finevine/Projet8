@@ -55,7 +55,7 @@ class ProductsView(generic.ListView):
     def get_queryset(self):
         ''' return 120 similar products '''
         name = self.request.GET.get('q')
-        return Product.objects.similar(name.lower())[:120]
+        return Product.objects.get_similar(name.lower())[:120]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -89,19 +89,19 @@ class CompareView(generic.ListView):
     def get_queryset(self):
         ''' return max 120 better products '''
         self.product_to_replace = Product.objects.get(code=self.kwargs['pk'])
-        return Product.objects.better(self.product_to_replace)[:120]
+        return Product.objects.get_better(self.product_to_replace)[:120]
 
     def get_context_data(self, **kwargs):
         ''' Pass the context that will be used in template '''
         context = super().get_context_data(**kwargs)
 
-        context['category'] = self.product_to_replace.category
+        context['categories'] = self.product_to_replace.categories
         context['product_to_replace'] = self.product_to_replace
         context['headerImg'] = self.product_to_replace.image
 
         # # From products of the same category ...
         # products = Product.objects.filter(
-        #     category__name=self.product_to_replace.category)
+        #     categories__name=self.product_to_replace.categories)
         # ... check if they are already saved by the user :
         if self.request.user.is_authenticated:
             context['in_fav'] = [

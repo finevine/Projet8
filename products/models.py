@@ -1,28 +1,7 @@
+import products.managers as managers
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
-
-
-class ProductManager(models.Manager):
-    def similar(self, name):
-        # icontains for case-insensitive
-        return (
-            Product.objects.filter(
-                models.Q(name__icontains=name)
-                | models.Q(category__name__icontains=name)
-            ).order_by('-nutritionGrade', 'code').distinct()
-        )
-
-    def better(self, product_to_replace):
-        # Find products from the same categories ...
-        products = Product.objects.filter(
-            category__in=product_to_replace.category.all())
-        # ... differents from product_to_replace ...
-        products = products.exclude(code=product_to_replace.code)
-        # ... have a nutritionGrade > nutritionGradetoreplace :
-        return products.filter(
-            nutritionGrade__lte=product_to_replace.nutritionGrade
-            ).order_by('nutritionGrade', 'code').distinct()
 
 
 class Category(models.Model):
@@ -52,8 +31,8 @@ class Product(models.Model):
     fat, satFat, sugar, salt, compared_to_category
     '''
 
-    objects = ProductManager()
-    code = models.BigIntegerField(primary_key=True, unique=True)
+    objects = managers.ProductManager()
+    code = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=255, null=True, verbose_name="Nom")
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
     nutritionGrade = models.CharField(
@@ -69,9 +48,9 @@ class Product(models.Model):
     salt = models.DecimalField(
         "Salt in 100g", max_digits=5, decimal_places=2, default=0)
 
-    category = models.ManyToManyField(
+    categories = models.ManyToManyField(
         Category,
-        related_name="category",
+        related_name="products",
         verbose_name="Catégorie")
 
     compared_to_category = models.ForeignKey(
@@ -82,14 +61,14 @@ class Product(models.Model):
 
     class Meta:
         verbose_name = "Produit"
-        ordering = ['category__id']
+        # ordering = ['category__id']
 
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)[:50] + '-' + str(self.code)
-        super(Product, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Favourite(models.Model):

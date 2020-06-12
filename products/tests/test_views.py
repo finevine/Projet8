@@ -35,7 +35,7 @@ class TestSaveDelete(TestCase):
                 name="prod"+str(i),
                 code=str(i),
                 nutritionGrade='b')
-            prod.category.add(cls.category)
+            prod.categories.add(cls.category)
         # create a user just for this test
         cls.user1 = User.objects.create_user(
             'user1name',
@@ -99,7 +99,7 @@ class TestSaveDelete(TestCase):
 #########################
 class TestSearch(TestCase):
 
-    @patch('products.models.ProductManager.similar')
+    @patch('products.managers.ProductManager.get_similar')
     def test_ProductsView(self, mock_similar):
         mock_similar.return_value = [Product(code='1234', name='toto')]
         url = reverse('products:search')
@@ -171,7 +171,7 @@ class TestCompare(TestCase):
                 code=str(i),
                 nutritionGrade='a',
                 compared_to_category=cls.test_category)
-            prod.category.add(cls.test_category)
+            prod.categories.add(cls.test_category)
 
         # create one unhealthy product to check filtering
         cls.bad_prod = Product.objects.create(
@@ -179,7 +179,7 @@ class TestCompare(TestCase):
                 code='67890',
                 nutritionGrade='e',
                 compared_to_category=cls.test_category)
-        cls.bad_prod.category.add(cls.test_category)
+        cls.bad_prod.categories.add(cls.test_category)
         cls.prod1 = Product.objects.get(code=1)
 
     def test_compare_resolves(self):
@@ -225,7 +225,7 @@ class TestDetail(TestCase):
         mock_product = Product(code='5', name='prod5')
         mock_category.save()
         mock_product.save()
-        mock_product.category.add(mock_category)
+        mock_product.categories.add(mock_category)
 
         # Patch genericView to return only one object
         with patch.object(
