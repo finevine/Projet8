@@ -88,6 +88,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ['account.backends.EmailBackend']
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

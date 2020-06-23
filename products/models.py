@@ -83,7 +83,7 @@ class Favourite(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['healthy_product', 'unhealthy_product'],
+                fields=['healthy_product', 'unhealthy_product', 'owner'],
                 name='unique_favourite')
         ]
-        ordering = ['healthy_product']
+        ordering = ['owner']

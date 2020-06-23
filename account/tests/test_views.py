@@ -103,7 +103,20 @@ class TestSignup(TestCase):
 #    TEST LOGIN
 #########################
 class TestLogin(TestCase):
-    pass
+
+    @classmethod  # <- setUpTestData must be a class method
+    def setUpTestData(cls):
+        cls.user1 = User.objects.create_user(
+            'user1name',
+            'user1@email.com',
+            'GG56mm8=password')
+
+    def test_login_page_url(self):
+        url = reverse('login')
+        response = self.client.get(url)
+        self.assertEquals(url, '/account/login/')
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, template_name='registration/login.html')
 
 
 #########################
